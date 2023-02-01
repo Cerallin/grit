@@ -40,10 +40,10 @@ const char *c_cprsNames[GRIT_CPRS_MAX]= { "not", "lz77", "huf", "rle", "fake" };
 const char *c_identTypes[3]= { "u8", "u16", "u32" };
 const char *c_identAffix[E_AFX_MAX]= 
 {
-	"Tiles", "Bitmap", 
-	"Map", "Pal", 
-	"MetaTiles", "MetaMap",
-	"Grf"
+	"_Tiles", "_Bitmap",
+	"_Map", "_Pal",
+	"_MetaTiles", "_MetaMap",
+	"_Grf"
 };
 
 const MapselFormat c_mapselGbaText= 
