@@ -164,7 +164,7 @@ bool grit_xp_grf(GritRec *gr);
 
 // misc
 void grit_xp_decl(FILE *fp, const DataItem *item);
-void grit_xp_decl(FILE *fp, int chunk, const char *name, int affix, int len);
+void grit_xp_decl(FILE *fp, int chunk, const char *name, int affix, int len, int gfx_w, int gfx_h);
 bool grit_xp_h(GritRec *gr);
 bool grit_preface(GritRec *gr, FILE *fp, const char *cmt);
 
@@ -261,6 +261,15 @@ uint grit_xp_size(GritRec *gr)
 	return size;
 }
 
+//! Get gfx width of exported data.
+uint grit_xp_gfx_width(GritRec *gr) {
+	return gr->areaRight - gr->areaLeft;
+}
+
+//! Get gfx height of exported data.
+uint grit_xp_gfx_height(GritRec *gr) {
+	return gr->areaBottom - gr->areaTop;
+}
 
 //! Prepare an item for later exportation.
 bool grit_prep_item(GritRec *gr, eint id, DataItem *item)
@@ -1030,10 +1039,12 @@ bool xp_array_o(FILE *fp, const char *varname,
 		extern const unsigned short fooMap[128];</code><br>
 		[/code]
 */
-void grit_xp_decl(FILE *fp, int dtype, const char *name, int affix, int len)
+void grit_xp_decl(FILE *fp, int dtype, const char *name, int affix, int len, int gfx_w, int gfx_h)
 {
-	fprintf(fp, "#define %s%sLen %d\n", name, c_identAffix[affix], len);
-	fprintf(fp, "%s %s %s%s[%d];\n\n", cTypeSpec, cCTypes[dtype], 
+	fprintf(fp, "#define %s%s_Len    %d\n", name, c_identAffix[affix], len);
+	fprintf(fp, "#define %s%s_Width  %d\n", name, c_identAffix[affix], gfx_w);
+	fprintf(fp, "#define %s%s_Height %d\n", name, c_identAffix[affix], gfx_h);
+	fprintf(fp, "%s %s %s%s[%d];\n\n", cTypeSpec, cCTypes[dtype],
 		name, c_identAffix[affix],  ALIGN4(len)/dtype);
 }
 
@@ -1046,8 +1057,8 @@ void grit_xp_decl(FILE *fp, DataItem *item)
 	uint dtype= grit_type_size(item->dataType);
 	uint count= ALIGN4(size)/dtype;
 
-	fprintf(fp, "#define %sLen %d\n", item->name, size);
-	fprintf(fp, "%s %s %s[%d];\n\n", cTypeSpec, cCTypes[dtype], 
+	fprintf(fp, "#define %s_Len    %d\n", item->name, size);
+	fprintf(fp, "%s %s %s[%d];\n\n", cTypeSpec, cCTypes[dtype],
 		item->name, count);
 }
 
@@ -1107,7 +1118,8 @@ bool grit_xp_h(GritRec *gr)
 	if(gr->bRiff)	// Single GRF item
 	{
 		grit_xp_decl(fout, grit_type_size(gr->gfxDataType), 
-			gr->symName, E_AFX_GRF, grit_xp_size(gr));
+			gr->symName, E_AFX_GRF, grit_xp_size(gr), grit_xp_gfx_width(gr),
+			grit_xp_gfx_height(gr));
 	}
 	else			// Separate items
 	{
@@ -1115,8 +1127,14 @@ bool grit_xp_h(GritRec *gr)
 		for(eint id=GRIT_ITEM_GFX; id<GRIT_ITEM_MAX; id++)
 		{
 			grit_prep_item(gr, id, &item);
-			if(item.procMode == GRIT_EXPORT)
-			grit_xp_decl(fout, &item);
+			if(item.procMode == GRIT_EXPORT) {
+				grit_xp_decl(fout, &item);
+				// FIXME: put into grit_xp_decl
+				fprintf(fout, "#define %s_Width  %d\n", item.name,
+					grit_xp_gfx_width(gr));
+				fprintf(fout, "#define %s_Height %d\n", item.name,
+					grit_xp_gfx_height(gr));
+			}
 		}
 	}
 
