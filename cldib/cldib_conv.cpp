@@ -654,11 +654,21 @@ bool data_true_to_true(void *dstv, const void *srcv, int srcS,
 		{
 			int ofs= srcB>>3;
 			WORD *dstD2= (WORD*)dstv;
+			// TODO: get threshold in args, e.g. -gT
+			BYTE threshold = 0x0F;
 			nn= srcS/ofs;
 			for(ii=0; ii<nn; ii++)
 			{
-				RGBTRIPLE *pixel = (RGBTRIPLE *)&srcD[ofs*ii];
-				dstD2[ii]= RGB16(pixel->rgbtRed , pixel->rgbtGreen, pixel->rgbtBlue);
+				if (srcB == 32) {
+					RGBQUAD *pixel = (RGBQUAD *)&srcD[ofs*ii];
+					dstD2[ii] = RGB16(pixel->rgbRed , pixel->rgbGreen, pixel->rgbBlue);
+					// FIXME: NDS alpha, should be replaced somewhere else
+					// if (pixel->rgbReserved > threshold)
+						// dstD2[ii] |= 0x8000;
+				} else {
+					RGBTRIPLE *pixel = (RGBTRIPLE *)&srcD[ofs*ii];
+					dstD2[ii]= RGB16(pixel->rgbtRed , pixel->rgbtGreen, pixel->rgbtBlue);
+				}
 			}
 			return true;
 		}

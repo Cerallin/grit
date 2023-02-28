@@ -194,11 +194,13 @@ bool grit_prep_work_dib(GritRec *gr)
 				"  converting to: 16bpp BGR, alpha=1, except for 0x%04X.\n", 
 				clr);
 
-			for(ii=0; ii<nn; ii++)
-			{
-				wd= swap_rgb16(dibD2[ii]);
-				dibD2[ii]= (wd == clr ? wd : wd | NDS_ALPHA);	
-			}	
+			if (dib_get_bpp(dib) != 32) {
+				for(ii=0; ii<nn; ii++)
+				{
+					wd= swap_rgb16(dibD2[ii]);
+					dibD2[ii]= (wd == clr ? wd : wd | NDS_ALPHA);
+				}
+			}
 		}
 		else if(gr->gfxMode == GRIT_GFX_BMP_A)
 		{
