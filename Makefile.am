@@ -1,9 +1,11 @@
 # Makefile.am -- Process this file with automake to produce Makefile.in
 ACLOCAL_AMFLAGS = -I m4
 
-bin_PROGRAMS = grit
+noinst_LTLIBRARIES	= libcldib.la
 
-noinst_LTLIBRARIES      = libcldib.la libgrit.la
+lib_LTLIBRARIES		= libgrit.la
+
+bin_PROGRAMS		= grit
 
 libcldib_la_SOURCES	= cldib/cldib_adjust.cpp cldib/cldib_conv.cpp cldib/cldib_core.cpp \
 			cldib/cldib_tmap.cpp cldib/cldib_tools.cpp cldib/cldib_wu.cpp \
@@ -13,9 +15,15 @@ libcldib_la_SOURCES	= cldib/cldib_adjust.cpp cldib/cldib_conv.cpp cldib/cldib_co
 libgrit_la_SOURCES	= libgrit/cprs.cpp libgrit/cprs_huff.cpp libgrit/cprs_lz.cpp \
 			libgrit/cprs_rle.cpp libgrit/grit_core.cpp libgrit/grit_misc.cpp \
 			libgrit/grit_prep.cpp libgrit/grit_shared.cpp libgrit/grit_xp.cpp \
-			libgrit/logger.cpp libgrit/pathfun.cpp \
-			libgrit/cprs.h libgrit/grit.h libgrit/grit_core.h \
-			libgrit/logger.h libgrit/pathfun.h
+			libgrit/logger.cpp libgrit/pathfun.cpp
+
+libgrit_la_HEADERS 	= libgrit/cprs.h \
+			libgrit/grit.h \
+			libgrit/grit_core.h \
+			libgrit/logger.h \
+			libgrit/pathfun.h
+
+libgrit_ladir		= $(includedir)/grit
 
 libgrit_la_CPPFLAGS	=	-I$(top_srcdir)/cldib
 
@@ -23,4 +31,4 @@ grit_SOURCES	=	srcgrit/cli.cpp srcgrit/grit_main.cpp srcgrit/cli.h extlib/fi.cpp
 grit_LDADD	=	libgrit.la libcldib.la $(FREEIMAGE_LIBS)
 grit_CPPFLAGS	=	-I$(top_srcdir)/cldib -I$(top_srcdir)/libgrit -I$(top_srcdir)/extlib
 
-EXTRA_DIST = autogen.sh
+EXTRA_DIST	= autogen.sh
