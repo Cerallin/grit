@@ -20,7 +20,7 @@
 
 
 //! Parse \a str into an RGBQUAD
-/*! \param str	String to parse. Allowed formats are 16bit hex 
+/*! \param str	String to parse. Allowed formats are 16bit hex
 *	  patterns ("0xIIII", "IIII") or 24bit hex patterns (
 *	  "0xRRGGBB" or "RRGGBB").
 */
@@ -95,10 +95,10 @@ bool dib_true_to_8(CLDIB *dib, int nclrs)
 //! Hub for bpp conversion (all <code>-\></code> all; CPY; ok).
 /*!	\param src Source bitmap.
 	\param dstB Destination bitdepth (all)
-	\param base Bit(un)pack offset. 
+	\param base Bit(un)pack offset.
 	\return Converted bitmap on success; \c NULL on failure
 */
-// PONDER: have flags for RGB/BGR and stuff? (Or does that belong to 
+// PONDER: have flags for RGB/BGR and stuff? (Or does that belong to
 // data?)
 CLDIB *dib_convert_copy(CLDIB *src, int dstB, DWORD base)
 {
@@ -107,7 +107,7 @@ CLDIB *dib_convert_copy(CLDIB *src, int dstB, DWORD base)
 	int srcB= dib_get_bpp(src);
 
 	// --- conversion types ---
-	// palette <-> palette 
+	// palette <-> palette
 	// 1,4,8 -> 1,4,8   via bit(un)pack
 	if(srcB <= 8 && dstB <= 8)
 	{
@@ -135,7 +135,7 @@ CLDIB *dib_convert_copy(CLDIB *src, int dstB, DWORD base)
 		DWORD nclrs= 1<<dstB;
 		if(base != 0 && base<nclrs)
 			nclrs= base;
-		
+
 		tmp= dib_true_to_8_copy(src, nclrs);
 		if(tmp == NULL)
 			return NULL;
@@ -146,8 +146,8 @@ CLDIB *dib_convert_copy(CLDIB *src, int dstB, DWORD base)
 		return dst;
 	}
 	// --- truecolor <-> truecolor ---
-	// 16->24, 16->32 ; 
-	// 24->16, 24->32 ; 
+	// 16->24, 16->32 ;
+	// 24->16, 24->32 ;
 	// 32->16, 32->24
 	else if(srcB > 8 && dstB > 8)
 	{
@@ -158,12 +158,12 @@ CLDIB *dib_convert_copy(CLDIB *src, int dstB, DWORD base)
 
 
 //! Bit unpack for dibs (all <code>-\></code> all; CPY; ok).
-/*! Actually bit pack <i>and</i> unpack (primarily for pal-to-pal 
+/*! Actually bit pack <i>and</i> unpack (primarily for pal-to-pal
 *	conversions). Uses \c data_bit_unpack()	internally.
 *	\param src Source bitmap.
 *	\param dstB Destination bitdepth.
 *	\param base Bit unpack offset. Is added to pixel value to allow
-*	  values over the original bitdepths. Unless bit 31 is set, 
+*	  values over the original bitdepths. Unless bit 31 is set,
 *	  will only add to non-zero pixels.
 *	\return (Un)packed bitmap; \c NULL on failure.
 */
@@ -186,7 +186,7 @@ CLDIB *dib_bit_unpack_copy(CLDIB *src, int dstB, DWORD base)
 	// equal amount of padding pixels: full img (un)pack safe ... I hope
 	if( ((-srcW*srcB)&31)*dstB == ((-srcW*dstB)&31)*srcB )
 	{
-		data_bit_unpack(dstD, srcD, dib_get_size_img(src), 
+		data_bit_unpack(dstD, srcD, dib_get_size_img(src),
 			srcB, dstB, base | BUP_BEBIT);
 	}
 	else	// padding problem: must unpack per scanline
@@ -201,7 +201,7 @@ CLDIB *dib_bit_unpack_copy(CLDIB *src, int dstB, DWORD base)
 
 		for(iy=0; iy<srcH; iy++)
 		{
-			data_bit_unpack(tmpD, &srcD[iy*srcP], srcP, 
+			data_bit_unpack(tmpD, &srcD[iy*srcP], srcP,
 				srcB, dstB, base | BUP_BEBIT);
 			memcpy(&dstD[iy*dstP], tmpD, dstP);
 		}
@@ -260,11 +260,11 @@ CLDIB *dib_8_to_true_copy(CLDIB *src, int dstB)
 
 	BYTE *srcD= dib_get_img(src), *dstD= dib_get_img(dst);
 
-	// Equal amount of padding pixels: full img conversion safe 
+	// Equal amount of padding pixels: full img conversion safe
 	// ... I hope
 	if(dstB != 24 && ((-srcW*8)&24)*dstB == ((-srcW*dstB)&31)*8 )
 	{
-		data_8_to_true(dstD, srcD, dib_get_size_img(src), 
+		data_8_to_true(dstD, srcD, dib_get_size_img(src),
 			dstB, dib_get_pal(src));
 	}
 	else	// padding problem: must unpack per scanline
@@ -273,7 +273,7 @@ CLDIB *dib_8_to_true_copy(CLDIB *src, int dstB)
 		int srcP= dib_get_pitch(src), dstP= dib_get_pitch(dst);
 		for(iy=0; iy<srcH; iy++)
 		{
-			data_8_to_true(&dstD[iy*dstP], &srcD[iy*srcP], 
+			data_8_to_true(&dstD[iy*dstP], &srcD[iy*srcP],
 				srcW, dstB, dib_get_pal(src));
 		}
 	}
@@ -284,7 +284,7 @@ CLDIB *dib_8_to_true_copy(CLDIB *src, int dstB)
 //! Converts between true color bitdepths (16,24,32 <code>-\></code> 16.24.32; CPY; ok).
 /*!	\param src Source bitmap.
 *	\param dstB Destination bitdepth.
-*	\return Converted bitmap on success; \c NULL on failure	
+*	\return Converted bitmap on success; \c NULL on failure
 */
 CLDIB *dib_true_to_true_copy(CLDIB *src, int dstB)
 {
@@ -311,21 +311,21 @@ CLDIB *dib_true_to_true_copy(CLDIB *src, int dstB)
 		int iy;
 		int srcP= dib_get_pitch(src), dstP= dib_get_pitch(dst);
 		for(iy=0; iy<srcH; iy++)
-			data_true_to_true(&dstD[iy*dstP], &srcD[iy*srcP], srcP, 
+			data_true_to_true(&dstD[iy*dstP], &srcD[iy*srcP], srcP,
 				srcB, dstB);
 	}
 	else
-		data_true_to_true(dstD, srcD, dib_get_size_img(src), 
+		data_true_to_true(dstD, srcD, dib_get_size_img(src),
 			srcB, dstB);
 	return dst;
 }
 
 
 //! Converts true-color bitmap to 8 bpp (16,24,32 <code>-\></code> 8; CPY; ok).
-/*! Uses the Wu quantizer (thank you FreeImage) to quantize a 
+/*! Uses the Wu quantizer (thank you FreeImage) to quantize a
 *	true-color bitmap to a paletted one..
 *	\param src Source bitmap. Must be true color.
-*	\param nclrs Number of colors in the output bitmap. (It's still 
+*	\param nclrs Number of colors in the output bitmap. (It's still
 *	  always 8 bpp, though).
 *	\return Converted bitmap on success; \c NULL on failure
 */
@@ -366,7 +366,7 @@ CLDIB *dib_true_to_8_copy(CLDIB *src, int nclrs)
 *	  \arg \c base {30} : Big-endian bit read
 *	  \arg \c base {31} : Add offset to zero-valued pixels too
 */
-bool data_bit_unpack(void *dstv, const void *srcv, 
+bool data_bit_unpack(void *dstv, const void *srcv,
 	int srcS, int srcB, int dstB, DWORD base)
 {
 	if(srcB > dstB)
@@ -409,7 +409,7 @@ bool data_bit_unpack(void *dstv, const void *srcv,
 			dstBuf= swap_dword(dstBuf);
 		*dstL4++ = dstBuf;
 	}
- 
+
 	return true;
 }
 
@@ -422,12 +422,12 @@ bool data_bit_unpack(void *dstv, const void *srcv,
 *	\param base Packing offset (subtractive)<br>
 *	  \arg \c base {0-29} : Offset
 *	  \arg \c base {30} : Big-endian bit read
-*	  \arg \c base {31} : Subtract offset from zero-valued pixels too 
+*	  \arg \c base {31} : Subtract offset from zero-valued pixels too
 *	    (rather silly exercise, but still)
-*	\note \a base works as inverse of base in bit_unpack. But AN 
+*	\note \a base works as inverse of base in bit_unpack. But AN
 *		EXACT INVERSE IS IMPOSSIBLE
 */
-bool data_bit_pack(void *dstv, const void *srcv, 
+bool data_bit_pack(void *dstv, const void *srcv,
 	int srcS, int srcB, int dstB, DWORD base)
 {
 	if(dstB > srcB)
@@ -515,7 +515,7 @@ bool data_bit_rev(void *dstv, const void *srcv, int len, int bpp)
 			out |= ((in>>ii)&mask)<<(8-bpp-ii);
 		*dstL++= (BYTE)out;
 	}
-	
+
 	return true;
 }
 
@@ -525,10 +525,10 @@ bool data_bit_rev(void *dstv, const void *srcv, int len, int bpp)
 *	\param dstv Destination buffer. Must be pre-allocated.
 *	\param srcv Source buffer.
 *	\param len Size of the buffers in bytes.
-*	\param chunk Size of the chunk to reverse the bytes of (say, 4 for 
+*	\param chunk Size of the chunk to reverse the bytes of (say, 4 for
 *	  DWORDs, etc)
 *	\note \a dst and \a src may be aliased safely.
-*	\note \a len is in bytes, not chunks; \a len should be a multiple 
+*	\note \a len is in bytes, not chunks; \a len should be a multiple
 *	  of \a chunk (though not strictly required).
 */
 bool data_byte_rev(void *dstv, const void *srcv, int len, int chunk)
@@ -541,7 +541,7 @@ bool data_byte_rev(void *dstv, const void *srcv, int len, int chunk)
 		BYTE *srcL= (BYTE*)srcv, *dstL= (BYTE*)dstv;
 		int ii, jj=chunk-1;
 		// jj acts as a reverse offset and causes the dst index
-		// to run backwards (the factor 2) and is reset at 
+		// to run backwards (the factor 2) and is reset at
 		// chunk boundaries
 		for(ii=0; ii<len; ii++, jj -= 2)
 		{
@@ -580,7 +580,7 @@ bool data_byte_rev(void *dstv, const void *srcv, int len, int chunk)
 *	\param dstB Destination bitdepth.
 *	\param pal Palette to use for colors.
 */
-bool data_8_to_true(void *dstv, const void *srcv, int srcS, 
+bool data_8_to_true(void *dstv, const void *srcv, int srcS,
 	int dstB, RGBQUAD *pal)
 {
 	int ii;
@@ -636,7 +636,7 @@ bool data_8_to_true(void *dstv, const void *srcv, int srcS,
 *	\param srcB Source bitdepth
 *	\param dstB Destination bitdepth.
 */
-bool data_true_to_true(void *dstv, const void *srcv, int srcS, 
+bool data_true_to_true(void *dstv, const void *srcv, int srcS,
 	int srcB, int dstB)
 {
 	if(srcB == dstB)	// same depth, just copy
@@ -692,9 +692,16 @@ bool data_true_to_true(void *dstv, const void *srcv, int srcS,
 			RGBTRIPLE *dstD3= (RGBTRIPLE*)dstv;
 			for(ii=0; ii<srcS/4; ii++)
 			{
-				dstD3[ii].rgbtBlue=  srcD4[ii].rgbBlue;
-				dstD3[ii].rgbtGreen= srcD4[ii].rgbGreen;
-				dstD3[ii].rgbtRed=   srcD4[ii].rgbRed;
+				BYTE threshold = 0x20;
+				if (srcD4[ii].rgbReserved <= threshold) {
+					dstD3[ii].rgbtBlue = 0xFF;
+					dstD3[ii].rgbtGreen = 0x00;
+					dstD3[ii].rgbtRed = 0xFF;
+				} else{
+					dstD3[ii].rgbtBlue=  srcD4[ii].rgbBlue;
+					dstD3[ii].rgbtGreen= srcD4[ii].rgbGreen;
+					dstD3[ii].rgbtRed=   srcD4[ii].rgbRed;
+				}
 			}
 		}
 		return true;
@@ -718,7 +725,7 @@ bool data_true_to_true(void *dstv, const void *srcv, int srcS,
 			RGBTRIPLE *srcD3= (RGBTRIPLE*)srcv;
 			RGBQUAD *dstD4= (RGBQUAD*)dstv;
 			for(ii=0; ii<srcS/3; ii++)
-			{			
+			{
 				dstD4[ii].rgbBlue=  srcD3[ii].rgbtBlue;
 				dstD4[ii].rgbGreen= srcD3[ii].rgbtGreen;
 				dstD4[ii].rgbRed=   srcD3[ii].rgbtRed;
