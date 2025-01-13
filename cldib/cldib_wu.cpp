@@ -31,9 +31,9 @@
 // -------
 // July 2000:  C++ Implementation of Wu's Color Quantizer
 //             and adaptation for the FreeImage 2 Library
-//             Author: Hervé Drolon (drolon@infonie.fr)
+//             Author: Hervï¿½ Drolon (drolon@infonie.fr)
 // March 2004: Adaptation for the FreeImage 3 library (port to big endian processors)
-//             Author: Hervé Drolon (drolon@infonie.fr)
+//             Author: Hervï¿½ Drolon (drolon@infonie.fr)
 ///////////////////////////////////////////////////////////////////////
 
 #include "cldib_core.h"
@@ -48,7 +48,7 @@
 // Constructor / Destructor
 dibWuQuantizer::dibWuQuantizer(CLDIB *dib)
 {
-	mWidth = dib_get_width(dib);
+	mWidth = dib_align(dib_get_width(dib), dib_get_bpp(dib));
 	mHeight = dib_get_height(dib);
 	mPitch = dib_get_pitch(dib);
 	mDib = dib;
@@ -493,7 +493,7 @@ dibWuQuantizer::Quantize(int PalSize)
 		gm2= NULL;
 
 		// Allocate a new dib
-		int srcW= dib_get_width(mDib);
+		int srcW= mWidth;
 		int srcH= dib_get_height(mDib);
 
 		dst= dib_alloc(srcW, srcH, 8, NULL, true);
