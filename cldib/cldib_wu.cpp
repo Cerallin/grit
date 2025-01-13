@@ -493,7 +493,7 @@ dibWuQuantizer::Quantize(int PalSize)
 		gm2= NULL;
 
 		// Allocate a new dib
-		int srcW= dib_align(dib_get_width(mDib), 8);
+		int srcW= dib_get_width(mDib);
 		int srcH= dib_get_height(mDib);
 
 		dst= dib_alloc(srcW, srcH, 8, NULL, true);
@@ -526,10 +526,14 @@ dibWuQuantizer::Quantize(int PalSize)
 		int dstP= dib_get_pitch(dst);
 		BYTE *dstL= dib_get_img(dst);
 
+		int aligned = dib_align(srcW, 8);
 		for(ii=0; ii<srcH; ii++)
 		{
 			for(jj=0; jj<srcW; jj++)
 				dstL[jj]= tag[Qadd[ii*srcW+jj]];
+			for(jj=srcW; jj<aligned; jj++)
+				// FIXME assume pal[0x01] to be transparent
+				dstL[jj]= (BYTE)0x01;
 			dstL += dstP;
 
 		}
