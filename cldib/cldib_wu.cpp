@@ -523,6 +523,19 @@ dibWuQuantizer::Quantize(int PalSize)
 				pal[ii].rgbRed= pal[ii].rgbGreen= pal[ii].rgbBlue= 0;
 		}
 
+		BYTE transPosition = 0;
+		for (int i = 0; i < PalSize; i++) {
+			RGBQUAD transColor = {
+				.rgbBlue	= 0xFF, 
+				.rgbGreen	= 0x00, 
+				.rgbRed		= 0xFF
+			};
+			if (memcmp(&pal[i], &transColor, sizeof(RGBQUAD)) == 0) {
+				transPosition = i;
+				break;
+			}
+		}
+
 		int dstP= dib_get_pitch(dst);
 		BYTE *dstL= dib_get_img(dst);
 
@@ -533,7 +546,7 @@ dibWuQuantizer::Quantize(int PalSize)
 				dstL[jj]= tag[Qadd[ii*srcW+jj]];
 			for(jj=srcW; jj<aligned; jj++)
 				// FIXME assume pal[0x01] to be transparent
-				dstL[jj]= (BYTE)0x01;
+				dstL[jj]= transPosition;
 			dstL += dstP;
 
 		}
